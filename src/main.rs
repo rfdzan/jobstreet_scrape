@@ -57,10 +57,17 @@ fn get_info(vector: Vec<String>) {
     let mut job_title_and_link = Vec::new();
     for job in articles.iter() {
         let page_doc = Document::from(job.get_page().as_str());
+        let mut date: String = format!("None");
         let article_last_child = match page_doc.find(Name("article")).next() {
             None => None,
             Some(article) => {
                 if let Some("JobCard") = article.attr("data-card-type") {
+                    date = match article.find(Attr("class", "_1wkzzau0 a1msqi5i a1msqi0 _6ly8y50")).next() {
+                        None => "None".to_string(),
+                        Some(node) => {
+                            node.text()
+                        }
+                    };
                     article.last_child()
                 } else {
                     None
@@ -82,7 +89,7 @@ fn get_info(vector: Vec<String>) {
                             Some(attr)
                         });
                     if let Some(attr) = link {
-                        job_title_and_link.push(JobPage::new(job.get_title(), attr.to_string()));
+                        job_title_and_link.push(JobPage::new(job.get_title(), date.clone() ,attr.to_string()));
                     }
                 } 
             }

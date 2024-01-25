@@ -17,13 +17,15 @@ impl JobCard {
 #[derive(Debug, Clone)]
 pub struct JobPage {
     title: String,
+    date: String,
     link: String,
 }
 impl JobPage {
-    pub fn new(t: String, l: String) -> JobPage {
+    pub fn new(t: String, d: String, l: String) -> JobPage {
         JobPage {
             title: t,
-            link: l
+            date: d,
+            link: l,
         }
     }
 }
