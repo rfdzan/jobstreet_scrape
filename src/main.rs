@@ -50,14 +50,48 @@ fn get_info(vector: Vec<String>) {
                     }
                     Some(job_name) => job_name,
                 };
-                articles.push(JobCard::new(job_name.to_string(), page.clone()));
+                articles.push(JobCard::new(job_name.to_string(), article.html()));
             }
         }
     }
-    for job in articles.into_iter() {
-        println!("{}", job.get_title())
+    let mut job_title_and_link = Vec::new();
+    for job in articles.iter() {
+        let page_doc = Document::from(job.get_page().as_str());
+        let article_last_child = match page_doc.find(Name("article")).next() {
+            None => None,
+            Some(article) => {
+                if let Some("JobCard") = article.attr("data-card-type") {
+                    article.last_child()
+                } else {
+                    None
+                }
+            }
+        };
+        if let Some(last_child) = article_last_child {
+            for div in last_child.find(Name("div")) {
+                if let Some("_1wkzzau0 szurmz0 szurmz4") = div.attr("class") {
+                    let a_tag = div
+                        .last_child()
+                        .and_then(|node|{
+                            node.find(Attr("data-automation", "jobTitle")).next()   
+                        });
+                    match a_tag {
+                        None => (),
+                        Some(a) => {
+                            if let Some(attr) = a.attr("href"){
+                                job_title_and_link.push(JobPage::new(job.get_title(), attr.to_string()))
+                            }
+                        }
+                    }
+                } 
+            }
+        }
+    }
+    for job in job_title_and_link.iter() {
+        println!("{:?}", job);
     }
 }
+
 fn get_job_cards(page: String) -> Vec<String> {
     let doc = Document::from(page.as_str());
     let mut divs = Vec::new();
