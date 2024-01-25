@@ -1,9 +1,10 @@
 use jobstreet_jobs::*;
-use select::{document::Document, node::Node, predicate::*};
+use select::{document::Document, predicate::*};
 use ureq;
 use url;
+
 fn main() {
-    let to_search = "python";
+    let to_search = "javascript";
     let sanitized = sanitize_input(to_search);
     let url = parse_url(sanitized);
     match make_request(url) {
@@ -41,18 +42,15 @@ fn get_info(vector: Vec<String>) {
         let doc = Document::from(page.as_str());
         let find_article = doc.find(Name("article"));
         for article in find_article {
-            match article.attr("data-card-type") {
-                None => (),
-                Some(attr) => {
-                    if attr != "JobCard" {
-                        continue;
-                    }
-                    let job_name = match article.attr("aria-label") {
-                        None => "None",
-                        Some(job_name) => job_name,
-                    };
-                    articles.push(JobCard::new(job_name.to_string(), article.html()));
-                }
+            if let Some("JobCard") = article.attr("data-card-type") {
+                let job_name = match article.attr("aria-label") {
+                    None => {
+                        println!("Job title not found");
+                        "None"
+                        },
+                    Some(job_name) => job_name,
+                };
+                articles.push(JobCard::new(job_name.to_string(), article.html()));
             }
         }
     }
@@ -68,27 +66,17 @@ fn get_job_cards(page: String) -> Vec<String> {
     }
     let mut main_div = Vec::new();
     for div in divs {
-        match div.attr("role") {
-            None => (),
-            Some(attr) => {
-                if attr == "main" {
-                    main_div.push(div)
-                }
-            }
+        if let Some("main") = div.attr("role"){
+            main_div.push(div)
         }
+
     }
     let div_role_main_doc = Document::from(main_div[0].html().as_str());
 
     let mut parent_section = Vec::new();
     for section in div_role_main_doc.find(Name("section")) {
-        // sticky-save-search-desktop
-        match section.attr("name") {
-            None => (),
-            Some(attr) => {
-                if attr == "sticky-save-search-desktop" {
-                    parent_section.push(section)
-                }
-            }
+        if let Some("sticky-save-search-desktop") = section.attr("name") {
+            parent_section.push(section)
         }
     }
     let mut div_in_section = Vec::new();
@@ -101,32 +89,31 @@ fn get_job_cards(page: String) -> Vec<String> {
         .collect::<Vec<()>>();
     let mut inner_div = Vec::new();
     for div in div_in_section[1].find(Name("div")) {
-        match div.attr("class") {
-            None => (),
-            Some(attr) => {
-                if attr == "_1wkzzau0 a1msqi5e a1msqi5a a1msqiga a1msqi8i a1msqi8j a1msqi8c" {
-                    div.children()
-                        .filter(|child| {
-                            child.is(Name("div"))
-                                && child.attr("class").unwrap_or("None") == "_1wkzzau0 _21bfxf1"
-                        })
-                        .map(|child| inner_div.push(child))
-                        .collect()
-                }
-            }
+        if let Some("_1wkzzau0 a1msqi5e a1msqi5a a1msqiga a1msqi8i a1msqi8j a1msqi8c") = div.attr("class"){
+            div
+            .children()
+            .filter(|child| {
+                child.is(Name("div"))
+                    && child.attr("class").unwrap_or("None") == "_1wkzzau0 _21bfxf1"
+            })
+            .map(|child| inner_div.push(child))
+            .collect()
         }
     }
-    let mut final_node = Vec::new();
-    match inner_div[0].children().next() {
-        None => (),
-        Some(node) => match node.last_child() {
-            None => (),
-            Some(last_node) => final_node.push(last_node),
-        },
-    }
+    let final_node = inner_div
+        .first()
+        .and_then(|node| node.children().next())
+        .and_then(|node| node.last_child());
+        
     let mut to_return = Vec::new();
-    let lwk = final_node[0].children().collect::<Vec<Node>>();
-    for child in lwk[1].children() {
+    let mut lwk_children = Vec::new();
+    match final_node {
+        None => (),
+        Some(node) => {
+            lwk_children = node.children().collect()
+        }
+    }
+    for child in lwk_children[1].children() {
         to_return.push(child.html());
     }
     to_return
