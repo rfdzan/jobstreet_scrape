@@ -38,7 +38,7 @@ fn make_request(url: url::Url) -> Option<String> {
 }
 fn get_info(vector: Vec<String>) {
     let mut articles = Vec::new();
-    for page in vector.into_iter() {
+    for page in vector.iter() {
         let doc = Document::from(page.as_str());
         let find_article = doc.find(Name("article"));
         for article in find_article {
@@ -47,10 +47,10 @@ fn get_info(vector: Vec<String>) {
                     None => {
                         println!("Job title not found");
                         "None"
-                        },
+                    }
                     Some(job_name) => job_name,
                 };
-                articles.push(JobCard::new(job_name.to_string(), article.html()));
+                articles.push(JobCard::new(job_name.to_string(), page.clone()));
             }
         }
     }
@@ -66,10 +66,9 @@ fn get_job_cards(page: String) -> Vec<String> {
     }
     let mut main_div = Vec::new();
     for div in divs {
-        if let Some("main") = div.attr("role"){
+        if let Some("main") = div.attr("role") {
             main_div.push(div)
         }
-
     }
     let div_role_main_doc = Document::from(main_div[0].html().as_str());
 
@@ -80,38 +79,33 @@ fn get_job_cards(page: String) -> Vec<String> {
         }
     }
     let mut div_in_section = Vec::new();
-    let _ = parent_section[0]
-        .children()
-        .map(|children| {
-            // 2 childs
-            div_in_section.push(children);
-        })
-        .collect::<Vec<()>>();
+    for child in parent_section[0].children() {
+        div_in_section.push(child);
+    }
     let mut inner_div = Vec::new();
     for div in div_in_section[1].find(Name("div")) {
-        if let Some("_1wkzzau0 a1msqi5e a1msqi5a a1msqiga a1msqi8i a1msqi8j a1msqi8c") = div.attr("class"){
-            div
-            .children()
-            .filter(|child| {
-                child.is(Name("div"))
-                    && child.attr("class").unwrap_or("None") == "_1wkzzau0 _21bfxf1"
-            })
-            .map(|child| inner_div.push(child))
-            .collect()
+        if let Some("_1wkzzau0 a1msqi5e a1msqi5a a1msqiga a1msqi8i a1msqi8j a1msqi8c") =
+            div.attr("class")
+        {
+            div.children()
+                .filter(|child| {
+                    child.is(Name("div"))
+                        && child.attr("class").unwrap_or("None") == "_1wkzzau0 _21bfxf1"
+                })
+                .map(|child| inner_div.push(child))
+                .collect()
         }
     }
     let final_node = inner_div
         .first()
         .and_then(|node| node.children().next())
         .and_then(|node| node.last_child());
-        
+
     let mut to_return = Vec::new();
     let mut lwk_children = Vec::new();
     match final_node {
         None => (),
-        Some(node) => {
-            lwk_children = node.children().collect()
-        }
+        Some(node) => lwk_children = node.children().collect(),
     }
     for child in lwk_children[1].children() {
         to_return.push(child.html());
