@@ -1,3 +1,5 @@
+use std::io::IntoInnerError;
+
 use ureq;
 use select::{document::Document, predicate::*};
 use url;
@@ -69,16 +71,26 @@ fn new_scrape(page :String) {
         }
     }
     let mut div_in_section = Vec::new();
-    let parent_section_doc = Document::from(parent_section[0].html().as_str());
-    for div in parent_section_doc.find(Name("div")) {
+    let _ = parent_section[0]
+        .children()
+        .map(|children| {
+            // 2 childs
+            div_in_section.push(children);
+        })
+        .collect::<Vec<()>>();
+    let mut inner_div = Vec::new();
+    for div in div_in_section[1].find(Name("div")) {
         match div.attr("class") {
             None => (),
             Some(attr) => {
-                //_1wkzzau0 a1msqi9y a1msqi9r a1msqi8u a1msqi8n
-                if attr == "_1wkzzau0 a1msqi9y a1msqi9r a1msqi8u a1msqi8n" {
-                    div_in_section.push(div);
+                if attr == "_1wkzzau0 a1msqi5e a1msqi5a a1msqiga a1msqi8i a1msqi8j a1msqi8c"{
+                    for div2 in div.children() {
+                        inner_div.push(div2)
+                    }
                 }
-            } 
+            }
         }
     }
+    
+    
 }
