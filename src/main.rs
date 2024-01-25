@@ -70,18 +70,19 @@ fn get_info(vector: Vec<String>) {
         if let Some(last_child) = article_last_child {
             for div in last_child.find(Name("div")) {
                 if let Some("_1wkzzau0 szurmz0 szurmz4") = div.attr("class") {
-                    let a_tag = div
+                    let link = div
                         .last_child()
                         .and_then(|node|{
                             node.find(Attr("data-automation", "jobTitle")).next()   
+                        })
+                        .and_then(|a| {
+                            a.attr("href")
+                        })
+                        .and_then(|attr| {
+                            Some(attr)
                         });
-                    match a_tag {
-                        None => (),
-                        Some(a) => {
-                            if let Some(attr) = a.attr("href"){
-                                job_title_and_link.push(JobPage::new(job.get_title(), attr.to_string()))
-                            }
-                        }
+                    if let Some(attr) = link {
+                        job_title_and_link.push(JobPage::new(job.get_title(), attr.to_string()));
                     }
                 } 
             }
