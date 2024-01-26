@@ -1,17 +1,16 @@
-use jobstreet_jobs::*;
+use jobstreet_jobs::{*, job_details::details_main, core_request::{make_request, parse_url}};
 use select::{document::Document, predicate::*};
-use ureq;
-use url;
 
 fn main() {
     let to_search = "javascript";
     let sanitized = sanitize_input(to_search);
-    let url = parse_url(sanitized);
+    let url = parse_url(sanitized, false);
     match make_request(url) {
         None => println!("Page not Found"),
         Some(page) => {
             let job_cards = get_job_cards(page);
-            let _ = get_info(job_cards);
+            let list_of_jobs = get_preliminary_info(job_cards);
+            details_main(list_of_jobs)
         }
     }
 }
@@ -20,23 +19,7 @@ fn sanitize_input(keyword: &str) -> String {
     let base_string = split.join("-");
     format!("{base_string}-jobs")
 }
-fn parse_url(sanitized: String) -> url::Url {
-    // https://www.jobstreet.co.id/id/python-jobs?sortmode=ListedDate
-    let url = url::Url::parse("https://www.jobstreet.co.id/id/").unwrap();
-    url.join(sanitized.as_str()).unwrap()
-}
-fn make_request(url: url::Url) -> Option<String> {
-    let agent = ureq::AgentBuilder::new().build();
-    let resp = agent.get(url.as_str()).call().unwrap();
-    match resp.into_string() {
-        Err(e) => {
-            println!("{e}");
-            None
-        }
-        Ok(page) => Some(page),
-    }
-}
-fn get_info(vector: Vec<String>) {
+fn get_preliminary_info(vector: Vec<String>) -> Vec<jobstreet_jobs::JobPage> {
     let mut articles = Vec::new();
     for page in vector.iter() {
         let doc = Document::from(page.as_str());
@@ -95,9 +78,7 @@ fn get_info(vector: Vec<String>) {
             }
         }
     }
-    for job in job_title_and_link.iter() {
-        println!("{:?}", job);
-    }
+    job_title_and_link
 }
 
 fn get_job_cards(page: String) -> Vec<String> {
