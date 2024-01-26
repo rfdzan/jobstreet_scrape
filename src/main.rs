@@ -41,9 +41,10 @@ fn get_preliminary_info(vector: Vec<String>) -> Vec<jobstreet_jobs::JobPage> {
     for job in articles.iter() {
         let page_doc = Document::from(job.get_page().as_str());
         let mut date: String = format!("None");
-        let article_last_child = match page_doc.find(Name("article")).next() {
-            None => None,
-            Some(article) => {
+        let article_last_child = page_doc
+            .find(Name("article"))
+            .next()
+            .and_then(|article| {
                 if let Some("JobCard") = article.attr("data-card-type") {
                     date = match article.find(Attr("class", "_1wkzzau0 a1msqi5i a1msqi0 _6ly8y50")).next() {
                         None => "None".to_string(),
@@ -55,8 +56,7 @@ fn get_preliminary_info(vector: Vec<String>) -> Vec<jobstreet_jobs::JobPage> {
                 } else {
                     None
                 }
-            }
-        };
+            });
         if let Some(last_child) = article_last_child {
             for div in last_child.find(Name("div")) {
                 if let Some("_1wkzzau0 szurmz0 szurmz4") = div.attr("class") {
