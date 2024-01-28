@@ -2,6 +2,7 @@ use jobstreet_jobs::{*, job_details::details_main, core_request::{make_request, 
 use select::{document::Document, predicate::*};
 
 fn main() {
+    // details_main(url::Url::parse("https://www.jobstreet.co.id/id/job/73253391?type=Branded&ref=recom-standalone/").unwrap())
     let to_search = "javascript";
     let sanitized = sanitize_input(to_search);
     let url = parse_url(sanitized, false);
