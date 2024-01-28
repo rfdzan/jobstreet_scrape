@@ -8,7 +8,6 @@ pub fn details_main(url: Vec<JobPage>) {
         if let Some(page) = make_request(url) {
             scrape_details(page, job);
         }
-        break
     }
 }
 fn scrape_details(page: String, job: JobPage) {
