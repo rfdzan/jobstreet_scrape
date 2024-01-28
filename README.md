@@ -6,12 +6,13 @@ Filter jobs according to what I seek, reducing it into the most important inform
 Prevent wasting hours of mindless browsing.
 # Current Info
 ```
-Senior Front-End Developer
-Jakarta
+React Developer
+Bali
 Developers/Programmers (Information & Communication Technology)
 Full time
-Listed six days ago
-https://www.jobstreet.co.id/job/73206932?type=standout&ref=search-standalone
+Rp 16,000,000 – Rp 24,000,000 per month
+Listed two days ago
+https://www.jobstreet.co.id/job/73326720?type=standout&ref=search-standalone
 Senior Front End Developer (Software Engineer)
 South Jakarta, Jakarta
 Developers/Programmers (Information & Communication Technology)
