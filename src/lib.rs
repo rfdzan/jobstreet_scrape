@@ -1,9 +1,9 @@
 //! JobStreet Job Scrape
-//! 
+//!
 
-pub mod job_details;
-pub mod core_request;
 pub mod constants;
+pub mod core_request;
+pub mod job_details;
 /// Contains job title information from JobStreet search page, along with html of each cards.
 #[derive(Debug, Clone)]
 pub struct JobCard {

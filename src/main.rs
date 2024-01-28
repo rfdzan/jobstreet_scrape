@@ -1,4 +1,8 @@
-use jobstreet_jobs::{*, job_details::details_main, core_request::{make_request, parse_url}};
+use jobstreet_jobs::{
+    core_request::{make_request, parse_url},
+    job_details::details_main,
+    *,
+};
 use select::{document::Document, predicate::*};
 
 fn main() {
@@ -42,40 +46,36 @@ fn get_preliminary_info(vector: Vec<String>) -> Vec<jobstreet_jobs::JobPage> {
     for job in articles.iter() {
         let page_doc = Document::from(job.get_page().as_str());
         let mut date: String = format!("None");
-        let article_last_child = page_doc
-            .find(Name("article"))
-            .next()
-            .and_then(|article| {
-                if let Some("JobCard") = article.attr("data-card-type") {
-                    date = match article.find(Attr("class", "_1wkzzau0 a1msqi5i a1msqi0 _6ly8y50")).next() {
-                        None => "None".to_string(),
-                        Some(node) => {
-                            node.text()
-                        }
-                    };
-                    article.last_child()
-                } else {
-                    None
-                }
-            });
+        let article_last_child = page_doc.find(Name("article")).next().and_then(|article| {
+            if let Some("JobCard") = article.attr("data-card-type") {
+                date = match article
+                    .find(Attr("class", "_1wkzzau0 a1msqi5i a1msqi0 _6ly8y50"))
+                    .next()
+                {
+                    None => "None".to_string(),
+                    Some(node) => node.text(),
+                };
+                article.last_child()
+            } else {
+                None
+            }
+        });
         if let Some(last_child) = article_last_child {
             for div in last_child.find(Name("div")) {
                 if let Some("_1wkzzau0 szurmz0 szurmz4") = div.attr("class") {
                     let link = div
                         .last_child()
-                        .and_then(|node|{
-                            node.find(Attr("data-automation", "jobTitle")).next()   
-                        })
-                        .and_then(|a| {
-                            a.attr("href")
-                        })
-                        .and_then(|attr| {
-                            Some(attr)
-                        });
+                        .and_then(|node| node.find(Attr("data-automation", "jobTitle")).next())
+                        .and_then(|a| a.attr("href"))
+                        .and_then(|attr| Some(attr));
                     if let Some(attr) = link {
-                        job_title_and_link.push(JobPage::new(job.get_title(), date.clone() ,attr.to_string()));
+                        job_title_and_link.push(JobPage::new(
+                            job.get_title(),
+                            date.clone(),
+                            attr.to_string(),
+                        ));
                     }
-                } 
+                }
             }
         }
     }

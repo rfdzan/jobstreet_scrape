@@ -1,6 +1,6 @@
+use crate::constants::BASE_URL;
 use ureq;
 use url;
-use crate::constants::BASE_URL;
 /// Handles all outgoing requests to JobStreet.
 pub fn make_request(url: url::Url) -> Option<String> {
     let agent = ureq::AgentBuilder::new().build();
@@ -20,7 +20,7 @@ pub fn parse_url(sanitized: String, to_base: bool) -> url::Url {
     let url = url::Url::parse(BASE_URL).unwrap();
     if to_base {
         let to_return = url.join(sanitized.as_str()).unwrap();
-        return to_return
+        return to_return;
     }
     let add_region = url.join("/id").unwrap();
     add_region.join(sanitized.as_str()).unwrap()
