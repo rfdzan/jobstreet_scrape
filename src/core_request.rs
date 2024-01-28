@@ -1,5 +1,6 @@
 use ureq;
 use url;
+use crate::constants::BASE_URL;
 /// Handles all outgoing requests to JobStreet.
 pub fn make_request(url: url::Url) -> Option<String> {
     let agent = ureq::AgentBuilder::new().build();
@@ -16,7 +17,7 @@ pub fn make_request(url: url::Url) -> Option<String> {
 /// - `to_base` is set to true if the `sanitized` string is already a valid path to a JobStreet page.
 pub fn parse_url(sanitized: String, to_base: bool) -> url::Url {
     // https://www.jobstreet.co.id/id/python-jobs?sortmode=ListedDate
-    let url = url::Url::parse("https://www.jobstreet.co.id/").unwrap();
+    let url = url::Url::parse(BASE_URL).unwrap();
     if to_base {
         let to_return = url.join(sanitized.as_str()).unwrap();
         return to_return

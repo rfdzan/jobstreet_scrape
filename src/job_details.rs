@@ -1,18 +1,31 @@
-use crate::{JobPage, core_request::*};
+use crate::{JobPage, core_request::*, constants::BASE_URL};
 use select::{document::Document, predicate::*};
+use url;
 
 pub fn details_main(url: Vec<JobPage>) {
-    // if let Some(page) = make_request(url) {
-    //         scrape_details(page);
-    // }
-    for job in url.iter() {
+    for job in url.into_iter() {
         let url = parse_url(job.link.clone(), true);
         if let Some(page) = make_request(url) {
-            scrape_details(page);
+            scrape_details(page, job);
         }
+        break
     }
 }
-fn scrape_details(page: String) {
+fn scrape_details(page: String, job: JobPage) {
+    let job_link = match url::Url::parse(BASE_URL) {
+        Err(e) => {
+                println!("{e}");
+                "https://example.com/".to_string()
+            },
+        Ok(base) => {
+            if let Ok(full_link) = base.join(job.link.as_str()) {
+                full_link.to_string()
+            } else {
+                "None".to_string()
+            }
+        }
+    };
+    
     let doc = Document::from(page.as_str());
     let all_divs = doc.find(Name("div"));
     let mut main_div = String::new();
@@ -60,9 +73,16 @@ fn scrape_details(page: String) {
             }
         }
     }
+    let mut display_this = Vec::new();
+    display_this.push(job.title);
     for node in should_be_4.iter() {
         for span in node.find(Name("span")) {
-            println!("{}", span.text());
+            if let Some("_1wkzzau0 a1msqi4y a1msqir") = span.attr("class") {
+                display_this.push(span.text().trim().to_string())
+            }
         }
     }
+    display_this.push(job.date);
+    display_this.push(job_link);
+    println!("{}", display_this.join("\n"));
 }
