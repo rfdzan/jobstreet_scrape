@@ -6,8 +6,22 @@ Filter jobs according to what I seek, reducing it into the most important inform
 Prevent wasting hours of mindless browsing.
 # Current Info
 ```
-JobPage { title: "Frontend Developer (ReactJs)", date: "Listed more than one day ago", link: "/id/job/73284037?type=standout&ref=search-standalone" }
-JobPage { title: "NodeJS Developers", date: "Listed more than three days ago", link: "/id/job/73206672?type=standout&ref=search-standalone" }
-...
+Senior Front-End Developer
+Jakarta
+Developers/Programmers (Information & Communication Technology)
+Full time
+Listed six days ago
+https://www.jobstreet.co.id/job/73206932?type=standout&ref=search-standalone
+Senior Front End Developer (Software Engineer)
+South Jakarta, Jakarta
+Developers/Programmers (Information & Communication Technology)
+Full time
+Listed two days ago
+https://www.jobstreet.co.id/job/73314962?type=standard&ref=search-standalone
 ```
-Next step: Filter out links that are more than `x` days old
+Next steps: 
+- [ ] Filter out links that are more than `x` days old.
+- [ ] Filter based on minimum education.
+- [ ] Filter based on salary.
+- [ ] Filter based on job location.
+- [ ] Filter based on work type.
