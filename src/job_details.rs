@@ -42,17 +42,21 @@ fn scrape_details(page: String) {
         }
     }
     let div1_doc = Document::from(div1.as_str());
-    let mut should_be_4 = Vec::with_capacity(4);
+    let mut third_div_first_child = Vec::with_capacity(1);
     for div in div1_doc.find(Name("div")) {
         if let Some("_1wkzzau0 szurmz0 szurmz7") = div.attr("class") {
             if let Some(third_div) = div.children().take(3).last() {
                 if let Some(first_child_of_third_div) = third_div.first_child() {
-                    if let Some("_1wkzzau0 szurmz0 szurmz6") = first_child_of_third_div.attr("class") {
-                        for child in first_child_of_third_div.children() {
-                            should_be_4.push(child);
-                        }
-                    }
+                    third_div_first_child.push(first_child_of_third_div);
                 }
+            }
+        }
+    }
+    let mut should_be_4 = Vec::with_capacity(4);
+    if let Some(first_child_of_third_div) = third_div_first_child.iter().next() {
+        if let Some("_1wkzzau0 szurmz0 szurmz6") = first_child_of_third_div.attr("class") {
+            for child in first_child_of_third_div.children() {
+                should_be_4.push(child);
             }
         }
     }
